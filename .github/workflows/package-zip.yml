@@ -12,8 +12,6 @@ on:
     secrets:
       GPG_PRIVATE_KEY:
         required: true
-      GPG_PASSPHRASE:
-        required: true
 
 permissions:
   contents: write
@@ -81,4 +79,3 @@ jobs:
       file_pattern: '*.zip'
     secrets:
       GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
