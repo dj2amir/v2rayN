@@ -16,10 +16,10 @@ jobs:
       - name: Submit v2ray package to Windows Package Manager Community Repository
         run: |
 
-          $wingetPackage = "2dust.v2rayN"
+          $wingetPackage = "dj2amir.v2rayN"
           $gitToken = "${{ secrets.PT_WINGET }}"
 
-          $github = Invoke-RestMethod -uri "https://api.github.com/repos/2dust/v2rayN/releases" 
+          $github = Invoke-RestMethod -uri "https://api.github.com/repos/dj2amir/v2rayN/releases" 
 
           $targetRelease = $github | Where-Object -Property prerelease -match 'False' | Select -First 1
           

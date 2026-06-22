@@ -27,6 +27,8 @@ permissions:
 
 jobs:
   upload:
+    if: false  # این کار باعث می‌شود این job هرگز اجرا نشود
+
     runs-on: ubuntu-26.04
     steps:
     - name: Download release artifact

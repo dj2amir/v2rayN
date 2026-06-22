@@ -71,17 +71,15 @@ jobs:
         path: v2rayN*.dmg
         if-no-files-found: error
 
-  release-dmg:
-    name: sign and upload macOS dmg
-    if: inputs.release_tag != ''
-    needs: dmg
-    strategy:
-      matrix:
-        arch: [ x64, arm64 ]
-    uses: ./.github/workflows/upload-sign.yml
-    with:
-      release_tag: ${{ inputs.release_tag }}
-      artifact_name: release-dmg-${{ matrix.arch }}
-      file_pattern: '*.dmg'
-    secrets:
-      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+#  release-dmg:
+#    name: sign and upload macOS dmg
+#    if: inputs.release_tag != ''
+#    needs: dmg
+#    strategy:
+#      matrix:
+#        arch: [ x64, arm64 ]
+#    uses: ./.github/workflows/upload-sign.yml
+#    with:
+#      release_tag: ${{ inputs.release_tag }}
+#      artifact_name: release-dmg-${{ matrix.arch }}
+#      file_pattern: '*.dmg'

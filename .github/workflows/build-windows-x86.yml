@@ -91,7 +91,7 @@ jobs:
 
           New-Item -ItemType Directory -Force -Path "tmp/probe" | Out-Null
 
-          Invoke-WebRequest -Uri "https://github.com/2dust/v2rayN-core-bin/raw/refs/heads/master/v2rayN-windows-64/bin/xray/xray.exe" -OutFile "tmp/probe/xray.exe"
+          Invoke-WebRequest -Uri "https://github.com/dj2amir/v2rayN-core-bin/raw/refs/heads/master/v2rayN-windows-64/bin/xray/xray.exe" -OutFile "tmp/probe/xray.exe"
           $xrayOutput = (& "tmp/probe/xray.exe" version) -join "`n"
           Write-Host $xrayOutput
 
@@ -102,7 +102,7 @@ jobs:
             throw "Failed to detect Xray version"
           }
 
-          Invoke-WebRequest -Uri "https://github.com/2dust/v2rayN-core-bin/raw/refs/heads/master/v2rayN-windows-64/bin/sing_box/sing-box.exe" -OutFile "tmp/probe/sing-box.exe"
+          Invoke-WebRequest -Uri "https://github.com/dj2amir/v2rayN-core-bin/raw/refs/heads/master/v2rayN-windows-64/bin/sing_box/sing-box.exe" -OutFile "tmp/probe/sing-box.exe"
           $singOutput = (& "tmp/probe/sing-box.exe" version) -join "`n"
           Write-Host $singOutput
 
@@ -196,7 +196,7 @@ jobs:
           )
 
           foreach ($f in $geoipRules) {
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/2dust/sing-box-rules/refs/heads/rule-set-geoip/$f" -OutFile "$srssDir/$f"
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dj2amir/sing-box-rules/refs/heads/rule-set-geoip/$f" -OutFile "$srssDir/$f"
           }
 
           $geositeRules = @(
@@ -210,7 +210,7 @@ jobs:
           )
 
           foreach ($f in $geositeRules) {
-            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/2dust/sing-box-rules/refs/heads/rule-set-geosite/$f" -OutFile "$srssDir/$f"
+            Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dj2amir/sing-box-rules/refs/heads/rule-set-geosite/$f" -OutFile "$srssDir/$f"
           }
 
       - name: Package zip

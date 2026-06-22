@@ -20,6 +20,7 @@ permissions:
 
 jobs:
   publish:
+    if: false  # این کار باعث می‌شود این job هرگز اجرا نشود
     runs-on: ubuntu-26.04
     steps:
     - name: Import GPG private key
