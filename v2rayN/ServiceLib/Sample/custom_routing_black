@@ -1,5 +1,32 @@
 [
   {
+    "remarks": "ایران - ترافیک مستقیم دامنه‌ها",
+    "outboundTag": "direct",
+    "domain": [
+      "geosite:ir",
+      "geosite:category-ir",
+      "geosite:ir-tld",
+      "geosite:ir-government",
+      "geosite:ir-banking",
+      "geosite:ir-news"
+    ]
+  },
+  {
+    "remarks": "ایران - ترافیک مستقیم IP",
+    "outboundTag": "direct",
+    "ip": [
+      "geoip:ir"
+    ]
+  },
+  {
+    "remarks": "ایران - مسدودسازی تبلیغات",
+    "outboundTag": "block",
+    "domain": [
+      "geosite:category-ads-all",
+      "geosite:ir-ads"
+    ]
+  },
+  {
     "remarks": "绕过bittorrent",
     "outboundTag": "direct",
     "protocol": [

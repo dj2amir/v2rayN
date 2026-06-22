@@ -8,6 +8,8 @@ public sealed class AppManager
     private Config _config;
     private int? _statePort;
     private int? _statePort2;
+    private UpdateService _updateService;
+
     public static AppManager Instance => _instance.Value;
     public Config Config => _config;
 
@@ -75,6 +77,29 @@ public sealed class AppManager
         _config = config;
         Thread.CurrentThread.CurrentUICulture = new(_config.UiItem.CurrentLanguage);
 
+        // ✅ مقداردهی UpdateService و به‌روزرسانی فایل‌های Geo
+        try
+        {
+            _updateService = new UpdateService(_config, UpdateFunc);
+
+            Task.Run(async () =>
+            {
+                Logging.SaveLog("شروع به‌روزرسانی فایل‌های Geo...");
+                await _updateService.UpdateGeoFileAll();
+                Logging.SaveLog("به‌روزرسانی فایل‌های Geo کامل شد.");
+            }).Wait();
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog("InitApp_UpdateGeoFiles", ex);
+        }
+        // ✅ اعمال تنظیمات پیش‌فرض ایران بعد از لود تنظیمات
+        Task.Run(async () =>
+        {
+            await ApplyIranPreset();
+        }).Wait();
+
+
         //Under Win10
         if (Utils.IsWindows() && Environment.OSVersion.Version.Major < 10)
         {
@@ -103,6 +128,15 @@ public sealed class AppManager
         _ = StatePort;
         _ = StatePort2;
 
+        // ✅ اعمال تنظیمات پیش‌فرض ایران
+        _updateService = new UpdateService(_config, UpdateFunc);
+        Task.Run(async () =>
+        {
+            await ApplyIranPreset();
+        }).Wait();
+
+
+
         Task.Run(async () =>
         {
             await MigrateProfileExtra();
@@ -110,7 +144,21 @@ public sealed class AppManager
 
         return true;
     }
-
+    private async Task UpdateFunc(bool notify, string msg)
+    {
+        // اینجا میتونی پیام‌های به‌روزرسانی رو مدیریت کنی
+        // مثلاً نمایش در لاگ یا ارسال به UI
+        if (notify)
+        {
+            // اگر نیاز به نوتیفیکیشن داره
+            Logging.SaveLog("UpdateService"+msg);
+        }
+        else
+        {
+            Logging.SaveLog("UpdateService"+msg);
+        }
+        await Task.CompletedTask;
+    }
     public bool Reset()
     {
         _statePort = null;
@@ -155,6 +203,40 @@ public sealed class AppManager
     {
         ProcUtils.RebootAsAdmin();
         await AppManager.Instance.AppExitAsync(true);
+    }
+    /// <summary>
+    /// اعمال تنظیمات پیش‌فرض ایران
+    /// </summary>
+    private async Task ApplyIranPreset()
+    {
+        try
+        {
+            // اگر تنظیمات منطقه‌ای قبلاً اعمال نشده، ایران رو تنظیم کن
+            if (_config.ConstItem.GeoSourceUrl.IsNullOrEmpty())
+            {
+                Logging.SaveLog("ApplyIranPreset - اعمال تنظیمات پیش‌فرض ایران...");
+
+                // تنظیم لینک فایل‌های Geo
+                _config.ConstItem.GeoSourceUrl = Global.GeoFilesSources[2];
+                _config.ConstItem.SrsSourceUrl = Global.SingboxRulesetSources[2];
+
+                // ✅ تنظیم لینک قوانین مسیریابی ایران
+                _config.ConstItem.RouteRulesTemplateSourceUrl = "https://raw.githubusercontent.com/mer30hamid/v2rayN-Routing-Rules-Generator/main/v2rayN_rules.json";
+                await ConfigHandler.ApplyRegionalPreset(_config, EPresetType.Iran);
+                await ConfigHandler.SaveConfig(_config);
+                // ✅ فراخوانی به‌روزرسانی قوانین
+                await ConfigHandler.InitRouting(_config, false);
+                Logging.SaveLog("ApplyIranPreset - تنظیمات ایران با موفقیت اعمال شد.");
+            }
+            else
+            {
+                Logging.SaveLog($"ApplyIranPreset - تنظیمات منطقه‌ای قبلاً اعمال شده: {_config.ConstItem.GeoSourceUrl}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog("ApplyIranPreset", ex);
+        }
     }
 
     #endregion App

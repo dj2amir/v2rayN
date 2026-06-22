@@ -329,7 +329,7 @@
 
                 <view:StatusBarView DockPanel.Dock="Bottom" />
 
-                <Grid>
+                <Grid RenderTransformOrigin="0.504,0.495">
                     <Grid x:Name="gridMain" Visibility="Collapsed">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*" />

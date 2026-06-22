@@ -45,8 +45,60 @@ public partial class App : Application
             .BuildApp();
 
         base.OnStartup(e);
+        // ✅ سوال AutoRun
+        Dispatcher.CurrentDispatcher.BeginInvoke(new Action(async () =>
+        {
+            await CheckAndAskForAutoStart();
+        }), DispatcherPriority.ContextIdle);
     }
+    private async Task CheckAndAskForAutoStart()
+    {
+        try
+        {
+            if (AppManager.Instance.Config.GuiItem.AutoRunAsked)
+                return;
 
+            if (!Utils.IsWindows())
+                return;
+
+            if (!AppManager.Instance.Config.GuiItem.AutoRun)
+            {
+                var result = MessageBox.Show(
+                    "آیا می‌خواهید v2rayN با دسترسی ادمین و به‌صورت خودکار هنگام بالا آمدن ویندوز اجرا شود؟\n\n" +
+                    "✅ در صورت تایید، برنامه با بالاترین سطح دسترسی اجرا خواهد شد.\n" +
+                    "❌ در صورت رد، همچنان می‌توانید بعداً از تنظیمات فعالش کنید.",
+                    "تنظیمات اجرای خودکار",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question
+                );
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    AppManager.Instance.Config.GuiItem.AutoRun = true;
+                    AppManager.Instance.Config.GuiItem.AutoRunAsked = true;
+                    ConfigHandler.SaveConfig(AppManager.Instance.Config);
+
+                    await AutoStartupHandler.UpdateTask(AppManager.Instance.Config);
+
+                    MessageBox.Show(
+                        "تنظیمات اعمال شد.\nاز دفعه بعد با بالا آمدن ویندوز اجرا خواهد شد.",
+                        "موفق",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information
+                    );
+                }
+                else
+                {
+                    AppManager.Instance.Config.GuiItem.AutoRunAsked = true;
+                    ConfigHandler.SaveConfig(AppManager.Instance.Config);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog("CheckAndAskForAutoStart", ex);
+        }
+    }
     private void App_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         Logging.SaveLog("App_DispatcherUnhandledException", e.Exception);

@@ -4,6 +4,7 @@ public class Global
 {
     #region const
 
+
     public const string AppName = "v2rayN";
     public const string GithubUrl = "https://github.com";
     public const string GithubApiUrl = "https://api.github.com/repos";
@@ -187,7 +188,8 @@ public class Global
     [
         "",
         @"https://raw.githubusercontent.com/runetfreedom/russia-v2ray-custom-routing-list/main/v2rayN/template.json",
-        @"https://raw.githubusercontent.com/Chocolate4U/Iran-v2ray-rules/main/v2rayN/template.json"
+        @"https://raw.githubusercontent.com/Chocolate4U/Iran-v2ray-rules/main/v2rayN/template.json",
+            @"https://raw.githubusercontent.com/mer30hamid/v2rayN-Routing-Rules-Generator/main/v2rayN_rules.json" // ✅ لینک جدید ایران
     ];
 
     public static readonly List<string> DNSTemplateSources =

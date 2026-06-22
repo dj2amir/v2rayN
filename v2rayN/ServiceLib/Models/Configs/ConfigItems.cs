@@ -4,21 +4,13 @@ namespace ServiceLib.Models.Configs;
 public class CoreBasicItem
 {
     public bool LogEnabled { get; set; }
-
     public string Loglevel { get; set; }
-
     public string DefFingerprint { get; set; }
-
     public string DefUserAgent { get; set; }
-
     public string? SendThrough { get; set; }
-
     public string? BindInterface { get; set; }
-
     public bool EnableFragment { get; set; }
-
     public bool EnableFinalFragment { get; set; }
-
     public bool EnableCacheFile4Sbox { get; set; } = true;
 }
 
@@ -42,15 +34,10 @@ public class InItem
 public class KcpItem
 {
     public int Mtu { get; set; }
-
     public int Tti { get; set; }
-
     public int UplinkCapacity { get; set; }
-
     public int DownlinkCapacity { get; set; }
-
     public int CwndMultiplier { get; set; }
-
     public int MaxSendingWindow { get; set; }
 }
 
@@ -63,16 +50,49 @@ public class GrpcItem
     public int? InitialWindowsSize { get; set; }
 }
 
+/// <summary>
+/// کلاس اطلاعات فایل‌های Geo
+/// </summary>
+[Serializable]
+public class GeoFileItem
+{
+    public string Remarks { get; set; } = "";
+    public string Url { get; set; } = "";
+    public string FileName { get; set; } = "";
+    public bool IsActive { get; set; } = true;
+}
+
 [Serializable]
 public class GUIItem
 {
+    private bool _autoRunAsked;
+
+    /// <summary>
+    /// سازنده کلاس - مقداردهی اولیه فایل‌های Geo ایران
+    /// </summary>
+
+            public GUIItem()
+    {
+        // مقداردهی اولیه با لیست خالی
+        GeoFiles = new List<GeoFileItem>();
+    }
+    
+
+    public List<GeoFileItem> GeoFiles { get; set; } = [];
+
+    public bool AutoRunAsked
+    {
+        get => _autoRunAsked;
+        set => _autoRunAsked = value;
+    }
+
     public bool AutoRun { get; set; }
     public bool EnableStatistics { get; set; }
     public bool DisplayRealTimeSpeed { get; set; }
     public bool KeepOlderDedupl { get; set; }
     public int AutoUpdateInterval { get; set; }
     public int TrayMenuServersLimit { get; set; } = 20;
-    public bool EnableHWA { get; set; } = false;
+    public bool EnableHWA { get; set; }
     public bool EnableLog { get; set; } = true;
 }
 
@@ -117,13 +137,9 @@ public class ConstItem
 public class KeyEventItem
 {
     public EGlobalHotkey EGlobalHotkey { get; set; }
-
     public bool Alt { get; set; }
-
     public bool Control { get; set; }
-
     public bool Shift { get; set; }
-
     public int? KeyCode { get; set; }
 }
 
@@ -131,7 +147,6 @@ public class KeyEventItem
 public class CoreTypeItem
 {
     public EConfigType ConfigType { get; set; }
-
     public ECoreType CoreType { get; set; }
 }
 

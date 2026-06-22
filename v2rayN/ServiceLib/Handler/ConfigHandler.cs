@@ -4,10 +4,58 @@ namespace ServiceLib.Handler;
 
 public static class ConfigHandler
 {
+    /// <summary>
+    /// بررسی و اضافه کردن فایل‌های Geo پیش‌فرض ایران
+    /// </summary>
+    private static void EnsureDefaultGeoFiles(Config config)
+    {
+        try
+        {
+            // اگر لیست خالی است یا null، مقداردهی کن
+            if (config.GuiItem.GeoFiles == null || config.GuiItem.GeoFiles.Count == 0)
+            {
+                config.GuiItem.GeoFiles = new List<GeoFileItem>
+            {
+                new GeoFileItem
+                {
+                    Remarks = "Iran-GeoIP",
+                    Url = "https://raw.githubusercontent.com/Chocolate4U/Iran-v2ray-rules/release/geoip.dat",
+                    FileName = "geoip.dat",
+                    IsActive = true
+                },
+                new GeoFileItem
+                {
+                    Remarks = "Iran-Geosite",
+                    Url = "https://raw.githubusercontent.com/Chocolate4U/Iran-v2ray-rules/release/geosite.dat",
+                    FileName = "geosite.dat",
+                    IsActive = true
+                },
+                new GeoFileItem
+                {
+                    Remarks = "Iran-Dat",
+                    Url = "https://github.com/bootmortis/iran-hosted-domains/releases/latest/download/iran.dat",
+                    FileName = "iran.dat",
+                    IsActive = true
+                }
+            };
+
+                // ذخیره تنظیمات برای دفعات بعد
+                _ = SaveConfig(config);
+
+               // Logging.SaveLog(_tag, "فایل‌های Geo پیش‌فرض ایران اضافه شدند.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logging.SaveLog(_tag, ex);
+        }
+    }
+
     private static readonly string _configRes = Global.ConfigFileName;
     private static readonly string _tag = "ConfigHandler";
 
     #region ConfigHandler
+
 
     /// <summary>
     /// Load the application configuration file
@@ -95,6 +143,8 @@ public static class ConfigHandler
             EnableLegacyProtect = false,
         };
         config.GuiItem ??= new();
+        EnsureDefaultGeoFiles(config);
+
         config.MsgUIItem ??= new();
 
         config.UiItem ??= new();
@@ -105,7 +155,7 @@ public static class ConfigHandler
         {
             config.UiItem.CurrentLanguage = Thread.CurrentThread.CurrentCulture.TwoLetterISOLanguageName.Equals("zh", StringComparison.CurrentCultureIgnoreCase)
                 ? Global.Languages.First()
-                : Global.Languages[2];
+                : Global.Languages[3];
         }
 
         config.ConstItem ??= new ConstItem();
@@ -2400,6 +2450,135 @@ public static class ConfigHandler
         }
 
         var maxSort = items.Count;
+        // ✅ قوانین کامل ایران
+        var iranRules = new RoutingItem()
+        {
+            Remarks = $"{ver}ایران (Iran-Rules)",
+            Url = string.Empty,
+            Sort = maxSort + 1,
+            RuleSet = JsonUtils.Serialize(new List<RulesItem>
+        {
+            // ایران - ترافیک مستقیم دامنه‌ها
+            new RulesItem
+            {
+                Remarks = "ایران - ترافیک مستقیم دامنه‌ها",
+                OutboundTag = "direct",
+                Domain = new List<string> { "geosite:ir", "geosite:category-ir", "geosite:ir-tld" }
+            },
+            // ایران - ترافیک مستقیم IP
+            new RulesItem
+            {
+                Remarks = "ایران - ترافیک مستقیم IP",
+                OutboundTag = "direct",
+                Ip = new List<string> { "geoip:ir" }
+            },
+            // ایران - مسدودسازی تبلیغات
+            new RulesItem
+            {
+                Remarks = "ایران - مسدودسازی تبلیغات",
+                OutboundTag = "block",
+                Domain = new List<string> { "geosite:category-ads-all" }
+            },
+            // بایپس bittorrent
+            new RulesItem
+            {
+                Remarks = "绕过bittorrent",
+                OutboundTag = "direct",
+                Protocol = new List<string> { "bittorrent" }
+            },
+            // api.ip.sb
+            new RulesItem
+            {
+                Remarks = "api.ip.sb",
+                OutboundTag = "proxy",
+                Domain = new List<string> { "api.ip.sb" }
+            },
+            // مسدودسازی udp 443
+            new RulesItem
+            {
+                Remarks = "阻断udp443",
+                OutboundTag = "block",
+                Port = "443",
+                Network = "udp"
+            },
+            // پروکسی Google
+            new RulesItem
+            {
+                Remarks = "代理Google",
+                OutboundTag = "proxy",
+                Domain = new List<string> { "geosite:google" }
+            },
+            // بایپس آی‌پی‌های محلی
+            new RulesItem
+            {
+                Remarks = "绕过局域网IP",
+                OutboundTag = "direct",
+                Ip = new List<string> { "geoip:private" }
+            },
+            // بایپس دامنه‌های محلی
+            new RulesItem
+            {
+                Remarks = "绕过局域网域名",
+                OutboundTag = "direct",
+                Domain = new List<string> { "geosite:private" }
+            },
+            // پروکسی DNS های خارجی (IP)
+            new RulesItem
+            {
+                Remarks = "代理海外公共DNSIP",
+                OutboundTag = "proxy",
+                Ip = new List<string>
+                {
+                    "1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001",
+                    "8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844",
+                    "9.9.9.9", "149.112.112.112", "2620:fe::9", "2620:fe::fe",
+                    "77.88.8.8", "77.88.8.1", "2a02:6b8::feed:0ff", "2a02:6b8:0:1::feed:0ff",
+                    "208.67.222.222", "208.67.220.220", "2620:119:35::35", "2620:119:53::53"
+                }
+            },
+            // پروکسی DNS های خارجی (دامنه)
+            new RulesItem
+            {
+                Remarks = "代理海外公共DNS域名",
+                OutboundTag = "proxy",
+                Domain = new List<string>
+                {
+                    "domain:cloudflare-dns.com", "domain:one.one.one.one",
+                    "domain:dns.google", "domain:quad9.net", "domain:yandex.net"
+                }
+            },
+            // پروکسی IP های خارجی
+            new RulesItem
+            {
+                Remarks = "代理IP",
+                OutboundTag = "proxy",
+                Ip = new List<string>
+                {
+                    "geoip:facebook", "geoip:fastly", "geoip:google",
+                    "geoip:netflix", "geoip:telegram", "geoip:twitter"
+                }
+            },
+            // پروکسی GFW
+            new RulesItem
+            {
+                Remarks = "代理GFW",
+                OutboundTag = "proxy",
+                Domain = new List<string> { "geosite:gfw", "geosite:greatfire" }
+            },
+            // قانون نهایی: همه ترافیک مستقیم
+            new RulesItem
+            {
+                Remarks = "最终直连",
+                Port = "0-65535",
+                OutboundTag = "proxy"
+            }
+        }, false)
+        };
+
+        await AddBatchRoutingRules(iranRules, iranRules.RuleSet);
+        items.Add(iranRules);
+
+        // bypass mainland (چین)
         //Bypass the mainland
         var item2 = new RoutingItem()
         {
@@ -2429,7 +2608,7 @@ public static class ConfigHandler
 
         if (!blImportAdvancedRules)
         {
-            await SetDefaultRouting(config, item2);
+            await SetDefaultRouting(config, iranRules);
         }
         return 0;
     }
@@ -2666,17 +2845,38 @@ public static class ConfigHandler
     /// <returns>True if successful</returns>
     public static async Task<bool> ApplyRegionalPreset(Config config, EPresetType type)
     {
+        if (type == EPresetType.Default)
+        {
+            type = EPresetType.Iran;
+        }
         switch (type)
         {
             case EPresetType.Default:
-                config.ConstItem.GeoSourceUrl = "";
-                config.ConstItem.SrsSourceUrl = "";
-                config.ConstItem.RouteRulesTemplateSourceUrl = "";
+                config.ConstItem.GeoSourceUrl = Global.GeoFilesSources[2];
+                config.ConstItem.SrsSourceUrl = Global.SingboxRulesetSources[2];
+                config.ConstItem.RouteRulesTemplateSourceUrl = Global.RoutingRulesSources[2];
 
-                await SQLiteHelper.Instance.DeleteAllAsync<DNSItem>();
-                await InitBuiltinDNS(config);
+                var xrayDnsIrand = await GetExternalDNSItem(ECoreType.Xray, Global.DNSTemplateSources[2] + "v2ray.json");
+                var singboxDnsIrand = await GetExternalDNSItem(ECoreType.sing_box, Global.DNSTemplateSources[2] + "sing_box.json");
+                var simpleDnsIrand = await GetExternalSimpleDNSItem(Global.DNSTemplateSources[2] + "simple_dns.json");
 
-                config.SimpleDNSItem = InitBuiltinSimpleDNS();
+                if (simpleDnsIrand == null)
+                {
+                    xrayDnsIrand.Enabled = true;
+                    singboxDnsIrand.Enabled = true;
+                    config.SimpleDNSItem = InitBuiltinSimpleDNS();
+                }
+                else
+                {
+                    config.SimpleDNSItem = simpleDnsIrand;
+                }
+                await SaveDNSItems(config, xrayDnsIrand);
+                await SaveDNSItems(config, singboxDnsIrand);
+                /////
+//                await SQLiteHelper.Instance.DeleteAllAsync<DNSItem>();
+  //              await InitBuiltinDNS(config);
+
+    //            config.SimpleDNSItem = InitBuiltinSimpleDNS();
                 break;
 
             case EPresetType.Russia:

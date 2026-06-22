@@ -6,6 +6,24 @@ public static class AutoStartupHandler
 {
     private static readonly string _tag = "AutoStartupHandler";
 
+    public static bool IsTaskExists()
+    {
+        if (!Utils.IsWindows())
+            return false;
+
+        try
+        {
+            var autoRunName = GetAutoRunNameWindows();
+            using var taskService = new Microsoft.Win32.TaskScheduler.TaskService();
+            var task = taskService.FindTask(autoRunName);
+            return task != null;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static async Task<bool> UpdateTask(Config config)
     {
         if (Utils.IsWindows())
