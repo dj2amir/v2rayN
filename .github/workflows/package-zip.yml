@@ -9,9 +9,7 @@ on:
       target: # windows linux macos windows-desktop
         required: true
         type: string
-    secrets:
-      GPG_PRIVATE_KEY:
-        required: true
+
 
 permissions:
   contents: write
@@ -66,16 +64,16 @@ jobs:
         path: v2rayN*.zip
         if-no-files-found: error
 
-  release:
-    name: sign and upload zip x64 arm64
-    needs: package
-    strategy:
-      matrix:
-        arch: [ x64, arm64 ]
-    uses: ./.github/workflows/upload-sign.yml
-    with:
-      release_tag: ${{ inputs.release_tag }}
-      artifact_name: release-${{ inputs.target }}-${{ matrix.arch }}
-      file_pattern: '*.zip'
-    secrets:
-      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+#  release:
+#    name: sign and upload zip x64 arm64
+#    needs: package
+#    strategy:
+#      matrix:
+#        arch: [ x64, arm64 ]
+#    uses: ./.github/workflows/upload-sign.yml
+#    with:
+#      release_tag: ${{ inputs.release_tag }}
+#      artifact_name: release-${{ inputs.target }}-${{ matrix.arch }}
+#      file_pattern: '*.zip'
+#    secrets:
+#      GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
